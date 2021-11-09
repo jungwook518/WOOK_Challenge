@@ -42,7 +42,7 @@ class ErrorRate(object):
             s2 = self.vocab.label_to_string(y_hat)
             print('======================')
             print("Tar: ", s1)
-            print("Ref: ",s2)
+            print("Out: ",s2)
             print('======================')
             dist, length = self.metric(s1, s2)
 
@@ -101,5 +101,8 @@ class WordErrorRate(ErrorRate):
         w1 = [chr(word2char[w]) for w in s1.split()]
         w2 = [chr(word2char[w]) for w in s2.split()]
 
-        return Lev.distance(''.join(w1), ''.join(w2))
+        dist = Lev.distance(''.join(w1), ''.join(w2))
+        length = len(s1.split())
+
+        return dist, length
 
