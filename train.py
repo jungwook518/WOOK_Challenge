@@ -1,17 +1,13 @@
 import os,random,warnings,time,math
 import torch
-from torch import Tensor
 import torch.nn as nn
-import torch.nn.functional as F
 from dataloader.data_loader import prepare_dataset, _collate_fn
 from builder.model_builder import build_model
-from dataloader.vocabulary import Vocabulary,KsponSpeechVocabulary
-from configparser import ConfigParser
-from omegaconf import DictConfig, OmegaConf
+from dataloader.vocabulary import KsponSpeechVocabulary
+from omegaconf import OmegaConf
 from tensorboardX import SummaryWriter
 from metric.metric import CharacterErrorRate
 from checkpoint.checkpoint import Checkpoint
-from typing import Tuple
 from torch.utils.data import DataLoader
 import pdb
 
