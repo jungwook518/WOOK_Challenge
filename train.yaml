@@ -1,0 +1,42 @@
+train:
+    ### GPU / WORKERS / SEED #####
+    seed : 1
+    multi_gpu : False
+    gpu : '1'
+    num_workers : 10
+
+    ### DATASET ###
+    transcripts_path_train : 'dataset/trainset.txt'
+    transcripts_path_valid : 'dataset/validset.txt'
+    vocab_label : 'dataset/labels.csv'
+
+
+    #train 중간마다 저장
+    # checkpoint_every : 1000
+    print_every : 1
+    ##### Train model에 따른 config #####
+    resume : False   ## 이전 학습 모델을 이어서 학습하려면 True
+    exp_day : 'test1'
+    num_epochs: 200
+    learning_rate: 0.0001
+    batch_size : 1
+
+audio:
+    feature_extract_by : 'librosa'
+    transform_method : fbank
+    sample_rate : 16000
+    n_mels : 80
+    frame_length : 20 
+    frame_shift : 10
+    normalize : True
+    spec_augment : True
+    freq_mask_para : 12
+    time_mask_num : 2
+    freq_mask_num : 2
+
+
+model : 
+    ## My Model config ##
+    architecture: "Base_model"
+
+    

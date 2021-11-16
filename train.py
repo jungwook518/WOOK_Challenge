@@ -2,7 +2,7 @@ import os,random,warnings,time,math
 import torch
 import torch.nn as nn
 from dataloader.data_loader import prepare_dataset, _collate_fn
-from builder.model_builder import build_model
+from base_builder.model_builder import build_model
 from dataloader.vocabulary import KsponSpeechVocabulary
 from omegaconf import OmegaConf
 from tensorboardX import SummaryWriter
@@ -48,7 +48,8 @@ def train(config):
 
     optimizer = torch.optim.Adam(model.parameters(), lr=config.train.learning_rate)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer,mode='min',factor=0.5,patience=2,min_lr=0.000001)
-    criterion = nn.CrossEntropyLoss(ignore_index=vocab.pad_id,reduction='sum')
+    criterion = nn.CTCLoss(blank=vocab.unk_id, reduction='sum', zero_infinity=True)
+    
 
     tensorboard_path = 'outputs/tensorboard/'+str(config.model.architecture)+'/'+str(config.train.exp_day)
     if not os.path.exists(tensorboard_path):
@@ -84,15 +85,16 @@ def train(config):
             audio_input_lengths = audio_input_lengths.to(device)
             target_lengths = torch.as_tensor(target_lengths).to(device)
             model = model
-            outputs, encoder_output_lengths, encoder_log_probs = model(video_inputs, 
+            outputs = model(video_inputs, 
                                     video_input_lengths, 
                                     audio_inputs,
                                     audio_input_lengths,
                                     targets,
                                     target_lengths,
                                     )
-            loss = criterion(outputs.contiguous().view(-1, outputs.size(-1)), targets[:, 1:].contiguous().view(-1))                                                            
 
+            pdb.set_trace()
+            loss = criterion(outputs.transpose(0, 1), targets[:, 1:], audio_input_lengths, target_lengths)
             y_hats = outputs.max(-1)[1]
             cer = train_metric(targets[:, 1:], y_hats)
             loss.backward()
@@ -128,66 +130,6 @@ def train(config):
 
         train_metric.reset()
         
-        
-        #######################################           Valid             ###############################################
-        cer = 1.0
-        epoch_loss_total = 0.
-        total_num = 0
-        timestep = 0
-        
-        model.eval()
-
-        print('Valid %d epoch start' % epoch)
-        begin_time = epoch_begin_time = time.time()
-        for i, (video_inputs,audio_inputs,targets,video_input_lengths,audio_input_lengths,target_lengths) in enumerate(valid_loader):
-            
-            video_inputs = video_inputs.to(device)
-            audio_inputs = audio_inputs.to(device)
-            targets = targets.to(device)
-            video_input_lengths = video_input_lengths.to(device)
-            audio_input_lengths = audio_input_lengths.to(device)
-            target_lengths = torch.as_tensor(target_lengths).to(device)
-
-            outputs, encoder_output_lengths, encoder_log_probs = model(video_inputs, 
-                                    video_input_lengths, 
-                                    audio_inputs,
-                                    audio_input_lengths,
-                                    targets,
-                                    target_lengths,
-                                    )
-            loss = criterion(outputs.contiguous().view(-1, outputs.size(-1)), targets[:, 1:].contiguous().view(-1))                                                            
-            y_hats = outputs.max(-1)[1]
-            cer = val_metric(targets[:, 1:], y_hats)
-
-            total_num += int(audio_input_lengths.sum())  #total num은 오디오 총 프레임 수
-            epoch_loss_total += loss.item()
-
-            timestep += 1
-            torch.cuda.empty_cache()
-
-            if timestep % config.train.print_every == 0:
-                current_time = time.time()
-                elapsed = current_time - begin_time
-                epoch_elapsed = (current_time - epoch_begin_time) / 60.0
-                train_elapsed = (current_time - train_begin_time) / 3600.0
-                # pdb.set_trace()
-                print(log_format.format(epoch,config.train.num_epochs,
-                    timestep, len(valid_loader), loss,
-                    cer, elapsed, epoch_elapsed, train_elapsed,
-                    optimizer.state_dict()['param_groups'][0]['lr'],
-                ))
-                begin_time = time.time()
-            summary.add_scalar('iter_valid/loss',loss,epoch*len(valid_loader)+i)
-            summary.add_scalar('iter_valid/cer',cer,epoch*len(valid_loader)+i)
-
-        val_metric.reset()
-        print('Valid %d completed' % epoch)
-        model, valid_loss, valid_cer = model, epoch_loss_total / total_num, cer
-        scheduler.step(valid_loss)
-        summary.add_scalar('valid/loss',valid_loss,epoch)
-        summary.add_scalar('valid/cer',valid_cer,epoch)
-        summary.add_scalar('lr',optimizer.state_dict()['param_groups'][0]['lr'],epoch)
-        print('Epoch %d Valid Loss %0.4f CER %0.4f' % (epoch, valid_loss, valid_cer))
 
 if __name__ == '__main__':
     config = OmegaConf.load('train.yaml')
