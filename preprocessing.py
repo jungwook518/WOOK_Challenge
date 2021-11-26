@@ -50,7 +50,7 @@ def generate_character_script(videos_paths, audios_paths, transcripts,mode):
     print('create_script started..')
     char2id, id2char = load_label("labels.csv")
 
-    with open(os.path.join(mode+".txt"), "w") as f:
+    with open(os.path.join('./dataset/'+mode+".txt"), "w") as f:
         tmp = list(zip(videos_paths, audios_paths, transcripts))
         random.shuffle(tmp)
         videos_paths,audios_paths, transcripts = zip(*tmp)
