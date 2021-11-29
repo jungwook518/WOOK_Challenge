@@ -48,7 +48,7 @@ def target_to_sentence(target, id2char):
 
 def generate_character_script(videos_paths, audios_paths, transcripts,mode):
     print('create_script started..')
-    char2id, id2char = load_label("labels.csv")
+    char2id, id2char = load_label("./dataset/labels.csv")
 
     with open(os.path.join('./dataset/'+mode+".txt"), "w") as f:
         tmp = list(zip(videos_paths, audios_paths, transcripts))
