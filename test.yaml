@@ -1,0 +1,28 @@
+train:
+    ### GPU / WORKERS / SEED #####
+    multi_gpu : False
+    gpu : '1'
+    num_workers : 10
+
+    ### DATASET ###
+    transcripts_path_test : 'dataset/Valid.txt'
+    vocab_label : 'dataset/labels.csv'
+    batch_size : 1
+    test_model : './outputs/model_pt/Base_model/test1/checkpoint_epoch_0.pt'
+
+
+audio:
+    feature_extract_by : 'librosa'
+    transform_method : fbank
+    sample_rate : 16000
+    n_mels : 80
+    frame_length : 20 
+    frame_shift : 10
+    normalize : True
+    spec_augment : True
+    freq_mask_para : 12
+    time_mask_num : 2
+    freq_mask_num : 2
+
+
+    
