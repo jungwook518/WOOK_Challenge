@@ -96,6 +96,7 @@ def train(config):
             pdb.set_trace()
             loss = criterion(outputs.contiguous().view(-1, outputs.size(-1)), targets[:, 1:].contiguous().view(-1))
             y_hats = outputs.max(-1)[1]
+            
             cer = train_metric(targets[:, 1:], y_hats)
             loss.backward()
             optimizer.step()
