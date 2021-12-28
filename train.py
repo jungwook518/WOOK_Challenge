@@ -120,7 +120,7 @@ def train(config):
                 begin_time = time.time()
             summary.add_scalar('iter_training/loss',loss,epoch*len(train_loader)+i)
             summary.add_scalar('iter_training/cer',cer,epoch*len(train_loader)+i)
-
+            pdb.set_trace()
         print('Train %d completed' % epoch)
         Checkpoint(model, optimizer, epoch, config=config).save()
         model, train_loss, train_cer = model, epoch_loss_total / total_num, cer
