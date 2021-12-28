@@ -6,8 +6,8 @@ train:
     num_workers : 10
 
     ### DATASET ###
-    transcripts_path_train : 'dataset/trainset.txt'
-    transcripts_path_valid : 'dataset/validset.txt'
+    transcripts_path_train : 'dataset/Train.txt'
+    transcripts_path_valid : 'dataset/Valid.txt'
     vocab_label : 'dataset/labels.csv'
 
 
@@ -19,7 +19,7 @@ train:
     exp_day : 'test1'
     num_epochs: 200
     learning_rate: 0.0001
-    batch_size : 1
+    batch_size : 2
 
 audio:
     feature_extract_by : 'librosa'
@@ -34,9 +34,17 @@ audio:
     time_mask_num : 2
     freq_mask_num : 2
 
+video:
+    input_feat : 96
 
 model : 
     ## My Model config ##
-    architecture: "Base_model"
-
+    architecture: "transformer_model"
+    max_len: 50
+    dropout: 0.2
+    d_model: 512
+    d_ff: 2048
+    num_heads: 8
+    num_encoder_layers: 1
+    num_decoder_layers: 1
     
