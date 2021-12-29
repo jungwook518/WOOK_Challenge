@@ -93,7 +93,7 @@ def train(config):
                                     target_lengths,
                                     )
 
-            pdb.set_trace()
+            # pdb.set_trace()
             loss = criterion(outputs.contiguous().view(-1, outputs.size(-1)), targets[:, 1:].contiguous().view(-1))
             y_hats = outputs.max(-1)[1]
 
